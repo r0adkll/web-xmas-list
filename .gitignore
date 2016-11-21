@@ -1,0 +1,6 @@
+*.log
+.firebaserc
+
+# Ignore the firebase config with all the api keys in it
+firebase_config.js
+

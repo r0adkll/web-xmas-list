@@ -1,0 +1,22 @@
+{
+  "version": "1.0.0",
+  "name": "Xmas List",
+  "launch_path": "/index.html",
+  "description": "Share your xmas list with family and friends",
+  "developer": {
+    "name": "r0adkll",
+    "url": "https://blog.r0adkll.com"
+  },
+  "installs_allowed_from": [
+    "*"
+  ],
+  "default_locale": "en",
+  "permissions": {
+  },
+  "locales": {
+    "en": {
+      "name": "Xmas List",
+      "description": "Share your xmas list with family and friends"
+    }
+  }
+}
