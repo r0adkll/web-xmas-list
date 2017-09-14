@@ -9,7 +9,6 @@ function XmasList() {
 
     // Shortcuts to DOM Elements.
     this.xmasList = document.getElementById('xmas-items');
-    this.xmasTable = document.getElementById('xmas-table-items');
 
     this.titleInput = document.getElementById('gift-title');
     this.linkInput = document.getElementById('gift-link');
@@ -25,6 +24,16 @@ function Gift() {
     this.number = 0;
     this.title = "";
     this.linkUrl = "";
+    this.imageUrl = "";
+    this.price = 0.0;
+    this.subgifts = [];
+}
+
+function SubGift() {
+    this.number = 0;
+    this.title = "";
+    this.linkUrl = "";
+    this.imageUrl = "";
     this.price = 0.0;
 }
 
@@ -38,7 +47,7 @@ XmasList.prototype.loadMessages = function() {
     // Loads the last 12 messages and listen for new ones.
     var setMessage = function(data) {
         var val = data.val();
-        this.displayMessage(data.key, val.number, val.title, val.linkUrl, val.price);
+        this.displayMessage(data.key, val.number, val.title, val.linkUrl, val.price, val.imageUrl, val.subgifts);
     }.bind(this);
 
     this.messagesRef.on('child_added', function (snapshot) {
@@ -49,27 +58,42 @@ XmasList.prototype.loadMessages = function() {
 };
 
 XmasList.ITEM_TEMPLATE =
-    '<li class="mdl-list__item mdl-list__item--two-line">' +
-        '<span class="pad-right-normal mdl-list__item-secondary-action mdl-typography--title">' +
-            '<b class="item-number"></b>' +
-        '</span>' +
-        '<span class="mdl-list__item-primary-content ">' +
-            '<span class="item-title mdl-typography--title"></span>' +
-            '<span class="mdl-list__item-sub-title truncate">' +
-                '<a target="_blank" class="item-link" ></a>' +
+    '<div class="gift-card mdl-card mdl-shadow--4dp mdl-cell mdl-cell--4-col mdl-cell--12-col-phone">' +
+        '<div class="mdl-card__media">' +
+            '<img class="gift-image" src="" />' +
+        '</div>' +
+        '<div class="mdl-card__title mdl-card--border">' +
+            '<span>' +
+                '<h2 class="gift-title mdl-card__title-text"></h2>' +
+                '<b class="gift-price"></b>' +
             '</span>' +
+        '</div>' +
+        '<div class="gift-dependents mdl-card__supporting-text">' +
+            '<span>Dependent Gifts</span>' +
+            '<ul class="gift-dependents-list mdl-list">' +
+            '</ul>' +
+        '</div>' +
+        '<div class="mdl-card__actions mdl-card--border">' +
+            // '<button class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">' +
+            //     'Claim Item' +
+            // '</button>' +
+            '<button class="gift-purchase mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">' +
+                'Purchase' +
+            '</button>' +
+        '</div>' +
+    '</div>';
+
+XmasList.SUBGIFT_TEMPLATE =
+    '<li class="mdl-list__item">' +
+        '<a href="#" target="_blank" class="item-link mdl-list__item-primary-content">' +
+            '<b class="item-number"></b> &nbsp; <span class="item-title"></span>' +
+        '</a>' +
+        '<span class="mdl-list__item-secondary-content">' +
+            '<b class="item-price"></b>' +
         '</span>' +
-        '<span class="item-price pad-left-normal mdl-list__item-secondary-action mdl-typography--title"></span>' +
     '</li>';
 
-XmasList.ITEM_TABLE_TEMPLATE =
-    '<tr>' +
-        '<td class="item-title mdl-data-table__cell--non-numeric"></td>' +
-        '<td class="mdl-data-table__cell--non-numeric"><a class="item-link truncate" target="_blank" ></a></td>' +
-        '<td class="item-price"></td>' +
-    '</tr>';
-
-XmasList.prototype.displayMessage = function(key, number, title, link, price) {
+XmasList.prototype.displayMessage = function(key, number, title, link, price, imageUrl, subgifts) {
     var div = document.getElementById(key);
     // If an element for that message does not exists yet we create it.
     if (!div) {
@@ -80,21 +104,40 @@ XmasList.prototype.displayMessage = function(key, number, title, link, price) {
         this.xmasList.appendChild(div);
     }
 
-    div.addEventListener('click', function () {
+    div.querySelector('.gift-image').setAttribute("src", imageUrl);
+    div.querySelector('.gift-title').textContent = title;
+    div.querySelector('.gift-price').textContent = "$" + price;
+    div.querySelector('.gift-purchase').addEventListener('click', function () {
         window.open(link, '_blank')
-    })
+    });
 
-    div.querySelector('.item-title').textContent = title;
-    div.querySelector('.item-number').textContent = "#" + itemCount;
+    var dependentGifts = div.querySelector('.gift-dependents');
+    var dependentGiftList = div.querySelector('.gift-dependents-list');
+    if(subgifts && subgifts.length){
+        for(var index in subgifts) {
+            var subgift = subgifts[index];
+            var subgiftKey = "subgift:" + key + ":" + subgift.number;
 
-    var linkElement = div.querySelector('.item-link');
-    linkElement.textContent = link;
-    linkElement.setAttribute('href', link);
+            var subDiv = document.getElementById(subgiftKey);
+            if (!subDiv) {
+                var subContainer = document.createElement('div');
+                subContainer.innerHTML = XmasList.SUBGIFT_TEMPLATE;
+                subDiv = subContainer.firstChild;
+                subDiv.setAttribute('id', subgiftKey);
+                dependentGiftList.appendChild(subDiv);
+            }
 
-    div.querySelector('.item-price').textContent = "$" + price;
+            subDiv.querySelector('.item-number').textContent = "#" + subgift.number;
+            subDiv.querySelector('.item-title').textContent = subgift.title;
+            subDiv.querySelector('.item-price').textContent = "$" + subgift.price;
+            subDiv.querySelector('.item-link').setAttribute("href", subgift.linkUrl);
+        }
+    } else {
+        // empty
+        dependentGifts.style.display = 'none'
+    }
+
     setTimeout(function() {div.classList.add('visible')}, 1);
-
-
 };
 
 XmasList.prototype.addGift = function() {
