@@ -13,6 +13,7 @@ function XmasList() {
     this.titleInput = document.getElementById('gift-title');
     this.linkInput = document.getElementById('gift-link');
     this.priceInput = document.getElementById('gift-price');
+    this.imageLinkInput = document.getElementById('gift-image-link');
 
     this.addButton = document.getElementById('add-action-button');
     this.addButton.addEventListener('click', this.addGift.bind(this));
@@ -141,17 +142,19 @@ XmasList.prototype.displayMessage = function(key, number, title, link, price, im
 };
 
 XmasList.prototype.addGift = function() {
-    if(this.titleInput.value && this.linkInput.value && this.priceInput.value){
+    if(this.titleInput.value && this.linkInput.value && this.priceInput.value && this.imageLinkInput.value){
 
         this.messagesRef.push({
             number: itemCount,
             title: this.titleInput.value,
             linkUrl: this.linkInput.value,
-            price: this.priceInput.value
+            price: this.priceInput.value,
+            imageUrl: this.imageLinkInput.value
         }).then(function () {
             XmasList.resetMaterialTextfield(this.titleInput);
             XmasList.resetMaterialTextfield(this.linkInput);
             XmasList.resetMaterialTextfield(this.priceInput);
+            XmasList.resetMaterialTextfield(this.imageLinkInput);
         }.bind(this)).catch(function(error) {
             console.error('Error writing new message to Firebase Database', error);
         });
