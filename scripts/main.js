@@ -103,6 +103,7 @@ XmasList.prototype.displayMessage = function(key, number, title, link, price, im
         div = container.firstChild;
         div.setAttribute('id', key);
         this.xmasList.appendChild(div);
+        div.style.order = number
     }
 
     div.querySelector('.gift-image').setAttribute("src", imageUrl);
@@ -138,6 +139,7 @@ XmasList.prototype.displayMessage = function(key, number, title, link, price, im
         dependentGifts.style.display = 'none'
     }
 
+    div.style.order = number
     setTimeout(function() {div.classList.add('visible')}, 1);
 };
 
